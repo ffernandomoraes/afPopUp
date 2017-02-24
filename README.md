@@ -50,4 +50,6 @@ Define o target, caso seja definido '_blank' irá para outra aba senão ele irá
 
 ## Authors
 
-![alt text](http://i.imgur.com/3ShxeeX.jpg "Angelo Silva")&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;![alt text](http://i.imgur.com/rOUPyUs.jpg "Fernando Moraes")
+
+[<img src="http://i.imgur.com/rOUPyUs.jpg">](http://github.com/ffernandomoraes)
+[<img src="http://i.imgur.com/3ShxeeX.jpg">](http://github.com/angelorodriigors)
