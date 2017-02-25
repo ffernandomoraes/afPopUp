@@ -17,6 +17,33 @@ var afPopUp = {
 	element: null,
 	controlTimeCookie: null,
 
+	detectIE: function() {
+
+	    var ua = window.navigator.userAgent;
+
+	    var msie = ua.indexOf('MSIE ');
+	    if (msie > 0) {
+	        // IE 10 or older => return version number
+	        return parseInt(ua.substring(msie + 5, ua.indexOf('.', msie)), 10);
+	    }
+
+	    var trident = ua.indexOf('Trident/');
+	    if (trident > 0) {
+	        // IE 11 => return version number
+	        var rv = ua.indexOf('rv:');
+	        return parseInt(ua.substring(rv + 3, ua.indexOf('.', rv)), 10);
+	    }
+
+	    var edge = ua.indexOf('Edge/');
+	    if (edge > 0) {
+	       // Edge (IE 12+) => return version number
+	       return parseInt(ua.substring(edge + 5, ua.indexOf('.', edge)), 10);
+	    }
+
+	    // other browser
+	    return false;
+	},
+
 	validateNull: function(data) {
 		return(data != null && data != '' && data != ' ');
 	},
@@ -30,7 +57,7 @@ var afPopUp = {
 		}
 	},
 
-	getCloseClickButton: function(element) {
+	getCloseClickButton: function(element, controlButtonClose) {
 		var closeButton = document.getElementsByClassName('popup-close');
 		var indentifier = this.validateIndentifier(element);
 		var length = element.length;
@@ -39,13 +66,39 @@ var afPopUp = {
 		var html = this.preparePopUpHTMLToPrint();		
 
 		closeButton[0].onclick = function(e) {
-			if (indentifier == '#') {
-				document.getElementById(selectName).style = "display: none";
-			} else if(indentifier == '.') {
-				var selector = document.getElementsByClassName(selectName);
 
-				selector[0].style = "display: none";
+			if(controlButtonClose == false){
+
+				// Chorme, Moz
+				if (indentifier == '#') {
+					document.getElementById(selectName).style = "display: none";
+
+				} 
+				else if(indentifier == '.') {
+					var selector = document.getElementsByClassName(selectName);
+
+					selector[0].style = "display: none";
+				}
+
 			}
+			else{
+
+				// IE
+				if (indentifier == '#') {
+
+					var parentButton = document.getElementById(selectName);
+
+			 		parentButton.setAttribute('style', 'display: none');
+					
+				} 
+				else if(indentifier == '.') {
+
+					var selector = document.querySelectorAll("." + selectName);
+					selector[0].style.display = "none";
+
+				}
+
+			}	
 		}
 	},
 
@@ -95,6 +148,7 @@ var afPopUp = {
 	},
 
 	preparePopUpHTMLToPrint: function() {
+
 		var html = "<div style='top: 10px;left: 20px;position: fixed;z-index: 9999;cursor: pointer;' class='popup-close'><img style='width: 35px;' src='images/close.svg' alt='Icon Close afPopUp'></div><div class='popup-content' style='position:fixed;top: 50%;left: 50%;transform:translate(-50%,-50%);-ms-transform:translate(-50%,-50%);-webkit-transform: translate(-50%,-50%);z-index: 9998;'>";
 
 		if(this.haveLink) {
@@ -110,22 +164,56 @@ var afPopUp = {
 		var indentifier = this.validateIndentifier(element);
 		var length = element.length;
 		var selectName = element.substring(1, length);
-
 		var html = this.preparePopUpHTMLToPrint();
+		var controlButtonClose = null;
 
-		if (indentifier == '#') {
-			document.getElementById(selectName).style = "opacity: 1;width: 100%;height: 100%;position: fixed;background: rgba(0, 0, 0, 0.75);top: 0;left: 0;z-index: 9997;";
+		if(this.detectIE() == false){
 
-			var selector = document.getElementById(selectName).innerHTML =  html;
-		} else if(indentifier == '.') {
-			var selector = document.getElementsByClassName(selectName);
+			// Chrome, Moz
+			if (indentifier == '#') {
+				document.getElementById(selectName).style = "width: 100%;height: 100%;position: fixed;background: rgba(0, 0, 0, 0.75); top: 0;left: 0;z-index: 9997;";
 
-			selector[0].style = "opacity: 1;width: 100%;height: 100%;position: fixed;background: rgba(0, 0, 0, 0.75);top: 0;left: 0;z-index: 9997;";
+				var selector = document.getElementById(selectName).innerHTML =  html;
+			}
+			else if(indentifier == '.') {
+				var selector = document.getElementsByClassName(selectName);
 
-			selector[0].innerHTML =  html;
+				selector[0].style = "width: 100%;height: 100%;position: fixed;background: rgba(0, 0, 0, 0.75);top: 0;left: 0;z-index: 9997;";
+
+				selector[0].innerHTML =  html;
+			}
+
+			controlButtonClose = false;
+		}
+		else{
+			// IE
+			if (indentifier == '#') {
+			 	var parentElement = document.getElementById(selectName);
+
+			 	parentElement.setAttribute('style','background: url(images/pelicula.png);background-size:100% 100%;top: 0;left: 0;z-index: 9997;position: fixed;width: 100%;height: 100%');
+
+			 	var selector = document.getElementById(selectName).innerHTML =  html;
+
+			}
+			else if(indentifier == '.') {
+
+				var selector = document.querySelectorAll("." + selectName);
+
+    			selector[0].style.background = "url(images/pelicula.png)";
+    			selector[0].style.width = "100%";
+    			selector[0].style.height = "100%";
+    			selector[0].style.top = "0";
+    			selector[0].style.left = "0";
+    			selector[0].style.position = "fixed";
+    			selector[0].style.zIndex = "9997";
+
+				selector[0].innerHTML =  html;
+			}
+
+		 	controlButtonClose = true;
 		}
 
-		this.getCloseClickButton(this.element);
+		this.getCloseClickButton(this.element, controlButtonClose);
 	},
 
 	validateData: function() {
